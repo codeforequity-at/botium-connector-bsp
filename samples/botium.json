@@ -1,0 +1,10 @@
+{
+  "botium": {
+    "Capabilities": {
+      "PROJECTNAME": "Speech Processing Plugin Sample",
+      "CONTAINERMODE": "bsp",
+      "BSP_STT_URL": "https://speech.botiumbox.com/api/stt/en",
+      "BSP_TTS_URL": "https://speech.botiumbox.com/api/tts/en"
+    }
+  }
+}

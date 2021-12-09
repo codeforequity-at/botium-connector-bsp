@@ -1,0 +1,23 @@
+{
+  "name": "samples",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "mocha spec"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "botium-connector-bsp": "../",
+    "botium-bindings": "latest",
+    "mocha": "latest"
+  },
+  "botium": {
+    "convodirs": [
+      "spec/convo"
+    ],
+    "expandConvos": true,
+    "expandUtterancesToConvos": false,
+    "expandScriptingMemoryToConvos": false
+  }
+}

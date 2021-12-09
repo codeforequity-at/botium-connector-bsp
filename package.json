@@ -1,0 +1,48 @@
+{
+  "name": "botium-connector-bsp",
+  "version": "0.0.1",
+  "description": "Botium Connector for Speech Processing",
+  "main": "dist/botium-connector-bsp-cjs.js",
+  "module": "dist/botium-connector-bsp-es.js",
+  "scripts": {
+    "build": "npm run eslint && rollup -c",
+    "eslint": "eslint index.js src/**/*.js",
+    "eslint-fix": "eslint --fix index.js src/**/*.js",
+    "update-dependencies": "npm-check-updates -u --timeout 120000"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/codeforequity-at/botium-connector-bsp.git"
+  },
+  "author": "Florian Treml",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/codeforequity-at/botium-connector-bsp/issues"
+  },
+  "homepage": "https://www.botium.ai",
+  "devDependencies": {
+    "@babel/core": "^7.16.0",
+    "@babel/node": "^7.16.0",
+    "@babel/plugin-transform-runtime": "^7.16.4",
+    "@babel/preset-env": "^7.16.4",
+    "eslint": "^8.4.1",
+    "eslint-config-standard": "^16.0.3",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.2.0",
+    "eslint-plugin-standard": "^4.1.0",
+    "npm-check-updates": "^12.0.3",
+    "rollup": "^2.61.0",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.16.3",
+    "axios": "^0.24.0",
+    "debug": "^4.3.3",
+    "form-data": "^4.0.0",
+    "lodash": "^4.17.21"
+  }
+}
