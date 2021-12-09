@@ -15,8 +15,6 @@ const Capabilities = {
   BSP_TTS_METHOD: 'BSP_TTS_METHOD',
   BSP_TTS_BODY: 'BSP_TTS_BODY',
   BSP_TTS_HEADERS: 'BSP_TTS_HEADERS',
-  BSP_TTS_VOICE: 'BSP_TTS_VOICE',
-  BSP_TTS_APIKEY: 'BSP_TTS_APIKEY',
   BSP_TTS_TIMEOUT: 'BSP_TTS_TIMEOUT'
 }
 
@@ -151,6 +149,9 @@ class BotiumConnectorBsp {
         sttResponse = await this.axiosStt({
           url: this.caps.BSP_STT_URL,
           headers: form.getHeaders(),
+          params: {
+            hint: msg.messageText
+          },
           data: form
         })
       } catch (err) {
