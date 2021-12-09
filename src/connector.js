@@ -138,22 +138,34 @@ class BotiumConnectorBsp {
     if (this.axiosStt) {
       let sttResponse = null
       try {
-        const form = new FormData()
-        form.append('content', audioBuffer, { filename: 'input.wav', contentType: 'audio/wav' })
-
         const body = this._getBody(Capabilities.BSP_STT_BODY)
-        for (const key of Object.keys(body)) {
-          form.append(key, JSON.stringify(body[key]))
-        }
+        if (body) {
+          const form = new FormData()
+          form.append('content', audioBuffer, { filename: 'input.wav', contentType: 'audio/wav' })
+          for (const key of Object.keys(body)) {
+            form.append(key, JSON.stringify(body[key]))
+          }
 
-        sttResponse = await this.axiosStt({
-          url: this.caps.BSP_STT_URL,
-          headers: form.getHeaders(),
-          params: {
-            hint: msg.messageText
-          },
-          data: form
-        })
+          sttResponse = await this.axiosStt({
+            url: this.caps.BSP_STT_URL,
+            headers: form.getHeaders(),
+            params: {
+              hint: msg.messageText
+            },
+            data: form
+          })
+        } else {
+          sttResponse = await this.axiosStt({
+            url: this.caps.BSP_STT_URL,
+            headers: {
+              'Content-Type': 'audio/wav'
+            },
+            params: {
+              hint: msg.messageText
+            },
+            data: audioBuffer
+          })
+        }
       } catch (err) {
         throw new Error(`STT failed - ${this._getAxiosErrOutput(err)}`)
       }
