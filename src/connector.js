@@ -41,8 +41,7 @@ class BotiumConnectorBsp {
         params: this._getParams(Capabilities.BSP_STT_PARAMS),
         method: this.caps.BSP_STT_METHOD,
         timeout: this.caps.BSP_STT_TIMEOUT,
-        headers: this._getHeaders(Capabilities.BSP_STT_HEADERS),
-        data: this._getBody(Capabilities.BSP_STT_BODY)
+        headers: this._getHeaders(Capabilities.BSP_STT_HEADERS)
       })
       try {
         const { data } = await this.axiosStt(this._getAxiosUrl(this.caps.BSP_STT_URL, '/api/status'))
@@ -61,8 +60,7 @@ class BotiumConnectorBsp {
         params: this._getParams(Capabilities.BSP_TTS_PARAMS),
         method: this.caps.BSP_TTS_METHOD,
         timeout: this.caps.BSP_TTS_TIMEOUT,
-        headers: this._getHeaders(Capabilities.BSP_TTS_HEADERS),
-        data: this._getBody(Capabilities.BSP_TTS_BODY)
+        headers: this._getHeaders(Capabilities.BSP_TTS_HEADERS)
       })
       try {
         const { data } = await this.axiosTts(this._getAxiosUrl(this.caps.BSP_TTS_URL, '/api/status'))
@@ -101,15 +99,19 @@ class BotiumConnectorBsp {
     } else if (msg.messageText) {
       if (!this.axiosTts) throw new Error('TTS not configured, only audio input supported')
 
+      const ttsRequest = {
+        url: this.caps.BSP_TTS_URL,
+        params: {
+          text: msg.messageText
+        },
+        data: this._getBody(Capabilities.BSP_TTS_BODY),
+        responseType: 'arraybuffer'
+      }
+      msg.sourceData = ttsRequest
+
       let ttsResponse = null
       try {
-        ttsResponse = await this.axiosTts({
-          url: this.caps.BSP_TTS_URL,
-          params: {
-            text: msg.messageText
-          },
-          responseType: 'arraybuffer'
-        })
+        ttsResponse = await this.axiosTts(ttsRequest)
       } catch (err) {
         throw new Error(`TTS "${msg.messageText}" failed - ${this._getAxiosErrOutput(err)}`)
       }
@@ -207,6 +209,12 @@ class BotiumConnectorBsp {
 
   _getAxiosShortenedOutput (data) {
     if (data) {
+      if (_.isBuffer(data)) {
+        try {
+          data = data.toString()
+        } catch (err) {
+        }
+      }
       return _.truncate(_.isString(data) ? data : JSON.stringify(data), { length: 200 })
     } else {
       return ''
