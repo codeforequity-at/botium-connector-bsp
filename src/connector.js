@@ -131,10 +131,7 @@ class BotiumConnectorBsp {
 
     const botMsg = {
       sender: 'bot',
-      sourceData: {},
-      attachments: [{
-        ...msg.attachments[0]
-      }]
+      sourceData: {}
     }
 
     if (this.axiosStt) {
