@@ -30,21 +30,24 @@ class BotiumConnectorBsp {
     this.queueBotSays = queueBotSays
     this.caps = Object.assign({}, Defaults, caps)
 
-    this.axiosStt = null
-    this.axiosTts = null
+    this.axiosSttParams = null
+    this.axiosTtsParams = null
   }
 
   async Validate () {
     if (this.caps.BSP_STT_URL) {
-      this.axiosStt = axios.create({
+      this.axiosSttParams = {
         url: this.caps.BSP_STT_URL,
         params: this._getParams(Capabilities.BSP_STT_PARAMS),
         method: this.caps.BSP_STT_METHOD,
         timeout: this.caps.BSP_STT_TIMEOUT,
         headers: this._getHeaders(Capabilities.BSP_STT_HEADERS)
-      })
+      }
       try {
-        const { data } = await this.axiosStt(this._getAxiosUrl(this.caps.BSP_STT_URL, '/api/status'))
+        const { data } = await axios({
+          ...this.axiosSttParams,
+          url: this._getAxiosUrl(this.caps.BSP_STT_URL, '/api/status')
+        })
         if (data && data.status === 'OK') {
           debug(`Checking STT Status response: ${this._getAxiosShortenedOutput(data)}`)
         } else {
@@ -55,15 +58,18 @@ class BotiumConnectorBsp {
       }
     }
     if (this.caps.BSP_TTS_URL) {
-      this.axiosTts = axios.create({
+      this.axiosTtsParams = {
         url: this.caps.BSP_TTS_URL,
         params: this._getParams(Capabilities.BSP_TTS_PARAMS),
         method: this.caps.BSP_TTS_METHOD,
         timeout: this.caps.BSP_TTS_TIMEOUT,
         headers: this._getHeaders(Capabilities.BSP_TTS_HEADERS)
-      })
+      }
       try {
-        const { data } = await this.axiosTts(this._getAxiosUrl(this.caps.BSP_TTS_URL, '/api/status'))
+        const { data } = await axios({
+          ...this.axiosTtsParams,
+          url: this._getAxiosUrl(this.caps.BSP_TTS_URL, '/api/status')
+        })
         if (data && data.status === 'OK') {
           debug(`Checking TTS Status response: ${this._getAxiosShortenedOutput(data)}`)
         } else {
@@ -76,6 +82,9 @@ class BotiumConnectorBsp {
   }
 
   async UserSays (msg) {
+    const nextConvoStep = msg.conversation[msg.currentStepIndex + 1]
+    const hint = (nextConvoStep && nextConvoStep.sender === 'bot' && nextConvoStep.messageText) || msg.messageText
+
     if (!msg.attachments) {
       msg.attachments = []
     }
@@ -97,11 +106,12 @@ class BotiumConnectorBsp {
         base64: media.buffer.toString('base64')
       })
     } else if (msg.messageText) {
-      if (!this.axiosTts) throw new Error('TTS not configured, only audio input supported')
+      if (!this.axiosTtsParams) throw new Error('TTS not configured, only audio input supported')
 
       const ttsRequest = {
-        url: this.caps.BSP_TTS_URL,
+        ...this.axiosTtsParams,
         params: {
+          ...(this.axiosTtsParams.params || {}),
           text: msg.messageText
         },
         data: this._getBody(Capabilities.BSP_TTS_BODY),
@@ -111,7 +121,7 @@ class BotiumConnectorBsp {
 
       let ttsResponse = null
       try {
-        ttsResponse = await this.axiosTts(ttsRequest)
+        ttsResponse = await axios(ttsRequest)
       } catch (err) {
         throw new Error(`TTS "${msg.messageText}" failed - ${this._getAxiosErrOutput(err)}`)
       }
@@ -134,8 +144,9 @@ class BotiumConnectorBsp {
       sourceData: {}
     }
 
-    if (this.axiosStt) {
+    if (this.axiosSttParams) {
       let sttResponse = null
+      let sttRequest = null
       try {
         const body = this._getBody(Capabilities.BSP_STT_BODY)
         if (body) {
@@ -145,31 +156,39 @@ class BotiumConnectorBsp {
             form.append(key, JSON.stringify(body[key]))
           }
 
-          sttResponse = await this.axiosStt({
-            url: this.caps.BSP_STT_URL,
-            headers: form.getHeaders(),
+          sttRequest = {
+            ...this.axiosSttParams,
+            headers: {
+              ...(this.axiosSttParams.headers || {}),
+              ...form.getHeaders()
+            },
             params: {
-              hint: msg.messageText
+              ...(this.axiosSttParams.params || {}),
+              hint
             },
             data: form
-          })
+          }
         } else {
-          sttResponse = await this.axiosStt({
-            url: this.caps.BSP_STT_URL,
+          sttRequest = {
+            ...this.axiosSttParams,
             headers: {
+              ...(this.axiosSttParams.headers || {}),
               'Content-Type': 'audio/wav'
             },
             params: {
-              hint: msg.messageText
+              ...(this.axiosSttParams.params || {}),
+              hint
             },
             data: audioBuffer
-          })
+          }
         }
+        botMsg.sourceData.request = sttRequest
+        sttResponse = await axios(sttRequest)
       } catch (err) {
         throw new Error(`STT failed - ${this._getAxiosErrOutput(err)}`)
       }
       if (sttResponse.data) {
-        botMsg.sourceData = sttResponse.data
+        botMsg.sourceData.response = sttResponse.data
         botMsg.messageText = sttResponse.data.text || ''
       }
     }
