@@ -82,8 +82,8 @@ class BotiumConnectorBsp {
   }
 
   async UserSays (msg) {
-    const nextConvoStep = msg.conversation[msg.currentStepIndex + 1]
-    const wer = (nextConvoStep && nextConvoStep.sender === 'bot' && nextConvoStep.messageText) || msg.messageText
+    const nextConvoStep = msg.conversation && _.isNumber(msg.currentStepIndex) && msg.conversation[msg.currentStepIndex + 1]
+    const wer = (nextConvoStep && nextConvoStep.sender === 'bot' && nextConvoStep.messageText) || msg.messageText || null
 
     if (!msg.attachments) {
       msg.attachments = []
@@ -164,7 +164,7 @@ class BotiumConnectorBsp {
             },
             params: {
               ...(this.axiosSttParams.params || {}),
-              wer
+              ...(wer ? { wer } : {})
             },
             data: form
           }
@@ -177,7 +177,7 @@ class BotiumConnectorBsp {
             },
             params: {
               ...(this.axiosSttParams.params || {}),
-              wer
+              ...(wer ? { wer } : {})
             },
             data: audioBuffer
           }
