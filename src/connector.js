@@ -83,7 +83,7 @@ class BotiumConnectorBsp {
 
   async UserSays (msg) {
     const nextConvoStep = msg.conversation && _.isNumber(msg.currentStepIndex) && msg.conversation[msg.currentStepIndex + 1]
-    const wer = (nextConvoStep && nextConvoStep.sender === 'bot' && nextConvoStep.messageText) || msg.messageText || null
+    const wer = msg.BSP_WER || (nextConvoStep && nextConvoStep.sender === 'bot' && nextConvoStep.messageText) || msg.messageText || null
 
     if (!msg.attachments) {
       msg.attachments = []

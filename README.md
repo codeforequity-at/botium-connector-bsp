@@ -9,3 +9,7 @@
 This is a [Botium](https://github.com/codeforequity-at/botium-core) connector for [Botium Speech Processing](https://github.com/codeforequity-at/botium-speech-processing). All it does is speech synthesis and speech recognition.
 
 __Did you read the [Botium in a Nutshell](https://medium.com/@floriantreml/botium-in-a-nutshell-part-1-overview-f8d0ceaf8fb4) articles ? Be warned, without prior knowledge of Botium you won't be able to properly use this library!__
+
+## Calculating Word Error Rate
+
+    UPDATE_CUSTOM BSP_WER|hello dear friends

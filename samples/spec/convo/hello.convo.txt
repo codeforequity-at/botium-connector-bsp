@@ -1,7 +1,8 @@
 hello
 
 #me
-hello
+hello, dear friends!
+UPDATE_CUSTOM BSP_WER|hello dear friends
 
 #bot
 hello
